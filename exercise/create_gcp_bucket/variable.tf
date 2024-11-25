@@ -1,12 +1,17 @@
-variable "region" {
+variable "gcp_region" {
   description = "The region in which the resources will be created."
 }
 
-variable "gco_svc_key" {
+variable "gcp_zone" {
+  description = "The zone in which the resources will be created."
+  
+}
+
+variable "gcp_svc_key" {
   description = "The path to the service account key file."
 }
 
-variable "project_id" {
+variable "gcp_project_id" {
   description = "The project ID."
 }
 

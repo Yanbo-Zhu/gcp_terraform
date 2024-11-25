@@ -1,7 +1,11 @@
 resource "google_storage_bucket" "website" {
   name          = var.bucket_name # bucket name has to be unique
-  location      = var.region
+  location      = var.gcp_region
   force_destroy = true
+  storage_class = "STANDARD"
+  labels = {
+    "key1" = "value1"
+  }
   website {
     main_page_suffix = "index.html"
     not_found_page   = "404.html"
@@ -29,9 +33,8 @@ resource "google_storage_object_access_control" "public_rule" {
 }
 
 resource "google_storage_bucket_object" "static_site_src" {
-  for_each = fileset(var.source_path, "**/*.*")
+  for_each = fileset(path.module, "website/*")
   name     = "${var.bucket_name}/${each.value}"
-  source   = "${var.source_path}/${each.value}"
+  source   = "${path.module}/${each.value}"
   bucket   = google_storage_bucket.website.name
-  content_type = mime_type(each.value)
 }
