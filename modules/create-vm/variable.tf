@@ -19,8 +19,23 @@ variable "gcp_project_id" {
   description = "The project ID."
 }
 
-variable "machine_type" {
+variable "vm_machine_type" {
   type = string
+}
+
+variable "vm_hostname" {
+  type = string
+  default = ""
+}
+
+variable "disk_volume_size" {
+  type = number
+  default = 30
+}
+
+variable "disk_type" {
+  type = string
+  default = "pd-ssd"
 }
 
 variable "resource_prefix" {

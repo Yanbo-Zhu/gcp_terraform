@@ -48,22 +48,25 @@ Erstellt eine Datenbank für Nextcloud. Zusätzlich soll ein User erstellt werde
 
 To start the MySQL command line mode use the following command:
 
-`sudo mysql`
+`sudo mysql`  or `sudo mariadb -u root`
 
 Then a MariaDB [root]> prompt will appear. Now enter the following lines, replacing username and password with appropriate values, and confirm them with the Enter key:
 
-```
+```sh
+# Datenbank mit Namen “nextcloud_db” erstellen
+CREATE DATABASE IF NOT EXISTS nextcloud CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+# Erstelle den User “nextcloud” mit Password “testpassword”
 CREATE USER 'username'@'localhost' IDENTIFIED BY 'password';
 
 CREATE USER 'nextcloud'@'localhost' IDENTIFIED BY '123456';
 
 
-CREATE DATABASE IF NOT EXISTS nextcloud CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-
+# gewähre Zugriff
 GRANT ALL PRIVILEGES ON nextcloud.* TO 'username'@'localhost';
 GRANT ALL PRIVILEGES ON nextcloud.* TO 'nextcloud'@'localhost';
 
-
+# Speichere die Änderungen
 FLUSH PRIVILEGES;
 ```
 
@@ -75,7 +78,7 @@ You can quit the prompt by entering:
 
 Erstellt einen Ordner für die Daten der Nextcloud User in /mnt/nextcloud-data.
 
-```
+```sh
 sudo mkdir -p /mnt/nextcloud-data
 sudo chown -R www-data:www-data /mnt/nextcloud-data
 sudo chmod 750 /mnt/nextcloud-data
@@ -88,9 +91,10 @@ sudo chmod 750 /mnt/nextcloud-data
 
 ## download and unpack Nextcloud Archiv
 Ladet das aktuellste Nextcloud Archiv für Server von der offiziellen Download Seite herunter: https://download.nextcloud.com/server/releases/latest.zip
+
 Entpackt und verschiebt es dann in das Basisverzeichnis des Apache2 Webservers (/var/www/).
 
-```
+```sh
 # Aktuellstes Nextcloud-Archiv herunterladen
 wget https://download.nextcloud.com/server/releases/latest.zip -O /tmp/nextcloud-latest.zip
 
@@ -104,7 +108,7 @@ sudo mv /tmp/nextcloud /var/www/
 sudo chown -R www-data:www-data /var/www/nextcloud
 
 # Berechtigungen setzen
-sudo chmod -R 750 /var/www/nextcloud
+sudo chmod -R 754 /var/www/nextcloud
 
 # Aufräumen (entfernen des Archivs)
 rm /tmp/nextcloud-latest.zip
@@ -113,9 +117,24 @@ echo "Nextcloud wurde erfolgreich in /var/www/nextcloud installiert."
 
 ```
 
-#  Apache Web server configuration for NextCloud
+
+## SichänderndeöffentlicheIP von der GCP VM beiNeustart
+
+var/www/html/nextcloud/config$ sudo nano config.php
 
 ```
+'trusted_domains' =>
+array (
+  0 => '34.89.219.178’,
+  1 => '*',     // add this entry into config.php file 
+),
+```
+
+
+
+#  Apache Web server configuration for NextCloud
+
+```sh
 sudo bash -c 'cat > /etc/apache2/sites-available/nextcloud.conf <<EOF
 Alias /nextcloud "/var/www/nextcloud/"
 
@@ -137,7 +156,14 @@ EOF'
 ```
 
 then execute 
-`sudo a2ensite nextcloud.conf`
+```sh
+sudo chmod 644 /etc/apache2/sites-available/nextcloud.conf
+
+sudo a2ensite nextcloud.conf
+
+```
+
+
 
 ## addtional 
 
@@ -146,9 +172,10 @@ then execute
 sudo a2enmod rewrite headers env dir mime
 
 # Apache-Dienst neu starten:
+sudo systemctl reload apache2
 sudo systemctl restart apache2
-
 ```
+
 # Aufgabe 7
 Konfiguriert Nextcloud im Browser durch Aufrufen der externen IP Adresse der virtuellen Maschine: Erstellt einen Admin Account und nutzt die vorher erstellte Datenbank sowie den in Aufgabe 5 erstellten Daten-Ordner.
 

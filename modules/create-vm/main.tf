@@ -42,9 +42,14 @@ resource "google_compute_firewall" "my_firewall_rule" {
     protocol = "icmp"
   }
 
+  allow {
+    protocol = "tcp"
+    ports    = ["9090"] # Port für Prometheus
+  }
+
 
   # Optional attributes
-  description = "Allow HTTP, HTTPS, SSH and ICMP traffic"
+  description = "Allow HTTP, HTTPS, SSH ,  ICMP and other traffic"
   direction   = "INGRESS"
 
   source_tags = ["cc"]
@@ -114,9 +119,9 @@ data "template_file" "startup_script" {
 
 resource "google_compute_disk" "my_disk" {
   name = "${var.resource_prefix}-disk-${random_id.my_random_id.hex}"
-  type = "pd-ssd"
+  type = var.disk_type
   zone = var.gcp_zone
-  size = 30 # GB
+  size = var.disk_volume_size # GB
   // only use an image data source if you're ok with the disk recreating itself with a new image periodically
   image = data.google_compute_image.ubuntu_2004.self_link
 }
@@ -124,9 +129,12 @@ resource "google_compute_disk" "my_disk" {
 
 resource "google_compute_instance" "my_instance" {
 
-  name         = "${var.resource_prefix}-${var.machine_type}-instance-${random_id.my_random_id.hex}"
-  machine_type = var.machine_type
+  name         = "${var.resource_prefix}-${var.vm_machine_type}-${random_id.my_random_id.hex}"
+  machine_type = var.vm_machine_type
   zone         = var.gcp_zone
+
+  hostname = var.vm_hostname != "" ? "${var.vm_hostname}.${var.resource_prefix}.${var.vm_machine_type}.${random_id.my_random_id.hex}" : "${var.resource_prefix}.${var.vm_machine_type}.${random_id.my_random_id.hex}"
+
 
   min_cpu_platform = "Automatic"
 

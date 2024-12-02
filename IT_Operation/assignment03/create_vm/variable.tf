@@ -19,8 +19,18 @@ variable "gcp_project_id" {
   description = "The project ID."
 }
 
-variable "machine_type" {
+variable "vm_machine_type" {
   type = string
+}
+
+variable "vm_hostname" {
+  type = string
+  default = ""
+}
+
+variable "vm_disk_volume_size" {
+  type = number
+  default = 30
 }
 
 variable "resource_prefix" {
@@ -35,20 +45,6 @@ variable "network_subnet_cidr" {
 
 variable "init_file_directory" {
   type        = string
-  default     = "./init_file"
+  default     = ""
   description = "value of the directory containing the initialization scripts"
 }
-
-/* 
-variable "ssh_key_file_path" {
-  type    = string
-  description = "Path to the local file containing the SSH public key"
-}
-
-
-variable "ssh_key_username" {
-  type    = string
-  description = "Username associated with the SSH key"
-}
-
-*/
